@@ -1,5 +1,6 @@
 module GeoCubesPlots
 
-greet() = print("Hello World!")
+include("vizCubes.jl")
+export cube! plotcube
 
 end # module
