@@ -4,14 +4,23 @@ cube!(; args...)
 add cubes faces to plot.
 
 a1       :: size of each side
+
 a2       :: position of each side
+
 cxyz     :: cube position center
+
 cmap     :: colormap
+
 topF     :: top side of cube
+
 bottomF  :: bottom side of cube
+
 frontF   :: front side of cube
+
 backF    :: back side of cube
+
 leftF    :: left side of cube
+
 rightF   :: right side of cube
 
 """
@@ -50,22 +59,34 @@ end
 plotcube(; args...)
 ______
 a1       ::  size of each side
+
 a2       :: position of each side
+
 cxyz     :: cube position center
+
 cmap     :: colormap
+
 topF     :: top side of cube
+
 bottomF  :: bottom side of cube
+
 frontF   :: front side of cube
+
 backF    :: back side of cube
+
 leftF    :: left side of cube
+
 rightF   :: right side of cube
+
 lonrange :: longitude range for ticks
+
 latrange :: longitude range for ticks
+
 timeStamps :: time ticks to be considered
 
 """
 function plotcube(;a1 = 1, a2 = 1, timeLonLat = (40,50,20), cxyz = (0,0,0),
-        cmap = :Spectral_11, transparent = false, limits = limits,
+        cmap = :Spectral_11, transparent = false, limits = Rect(Vec3f0(-1), Vec3f0(2)),
         topF    = randn(timeLonLat[1], timeLonLat[2]),
         bottomF = randn(timeLonLat[1], timeLonLat[2]),
         frontF  = randn(timeLonLat[2], timeLonLat[3]),
@@ -75,7 +96,6 @@ function plotcube(;a1 = 1, a2 = 1, timeLonLat = (40,50,20), cxyz = (0,0,0),
         lonrange= (-20,10), latrange = (-25,15),
         timeStamps = ["Jan", "Feb", "Mar", "Apr", "May"])
 
-    limits = Rect(Vec3f0(-1), Vec3f0(2))
     fig = Figure(resolution = (650, 500))
 
     ax = LScene(fig, scenekw = (camera = cam3d!, show_axis = true))
