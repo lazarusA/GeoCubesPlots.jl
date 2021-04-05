@@ -1,0 +1,7 @@
+name = "GeoCubesPlots"
+uuid = "1201f887-ff70-475d-b680-e5c75e2e38c5"
+authors = ["lazarusA <lazarus.alon@gmail.com>"]
+version = "0.1.0"
+
+[deps]
+GLMakie = "e9467ef8-e4e7-5192-8a1a-b1aee30e663a"
