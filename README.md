@@ -1,8 +1,10 @@
-GeoCubesPlots.jl
+# GeoCubesPlots
 
-
+### Installation and example
 ```julia
-julia> add https://github.com/lazarusA/GeoCubesPlots.jl
+julia>]
+pkg> add https://github.com/lazarusA/GeoCubesPlots.jl
 julia> using GeoCubesPlots
 julia> plotcube()
 ```
+![cubePlot.png](imgs/cubePlot.png)

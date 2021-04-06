@@ -94,7 +94,7 @@ function plotcube(;a1 = 1, a2 = 1, timeLonLat = (40,50,20), cxyz = (0,0,0),
         leftF   = randn(timeLonLat[1], timeLonLat[3]),
         rightF  =  randn(timeLonLat[1], timeLonLat[3]),
         lonrange= (-20,10), latrange = (-25,15),
-        timeStamps = ["Jan", "Feb", "Mar", "Apr", "May"])
+        timeStamps = ["Jan", "Feb", "Mar", "Apr", "May"], label = "label")
 
     fig = Figure(resolution = (650, 500))
 
@@ -105,7 +105,7 @@ function plotcube(;a1 = 1, a2 = 1, timeLonLat = (40,50,20), cxyz = (0,0,0),
         topF = topF, bottomF=bottomF, frontF=frontF, backF =backF,
         leftF= leftF, rightF=rightF )
 
-    cbar  = Colorbar(fig, cbox,  label = "Label",
+    cbar  = Colorbar(fig, cbox,  label = label,
         width = 11, height = Relative(2/4), tickalign = 1, ticklabelsize = 12, labelsize = 12,)
 
     yticks!(ax.scene; ytickrange = -1:0.5:1,
