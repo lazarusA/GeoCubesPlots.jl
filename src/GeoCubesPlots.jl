@@ -1,7 +1,9 @@
 module GeoCubesPlots
-using GLMakie, GeometryBasics
+using GLMakie, GeometryBasics, YAXArrays
 
 include("vizCubes.jl")
-export cube!, plotcube
+include("vizLonLat.jl")
+
+export cube!, plot, plotcube
 
 end # module
