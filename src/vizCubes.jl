@@ -40,15 +40,15 @@ function cube!(ax; a1 = 1, a2 = 1, timeLonLat = (40,50,20), cxyz = (0,0,0),
     y = LinRange(-a1, a1, size(topF)[2])
     z = LinRange(-a1, a1, size(leftF)[2])
 
-    bsurf = heatmap!(ax, y .+ cxyz[2], z .+ cxyz[3], backF, transformation=(:yz, -a2 + .+ cxyz[1]),
+    bsurf = heatmap!(ax, y .+ cxyz[2], z .+ cxyz[3], backF, transformation=(:yz, -a2 + cxyz[1]),
     colormap = cmap, transparency = transparent, limits = limits, colorrange = (lowLimit, highLimit)) # back, limits = FRect((-1,-1,-1), (2,2,2))
-    heatmap!(ax, x .+ cxyz[1], z .+ cxyz[3], leftF, transformation=(:xz, -a2 + .+ cxyz[2]),
+    heatmap!(ax, x .+ cxyz[1], z .+ cxyz[3], leftF, transformation=(:xz, -a2 + cxyz[2]),
         colormap = cmap, transparency = transparent, colorrange = (lowLimit, highLimit)) # left
     heatmap!(ax, x .+ cxyz[1], y .+ cxyz[2], bottomF, transformation=(:xy, -a2 + cxyz[3]),
         colormap = cmap, transparency = transparent, colorrange = (lowLimit, highLimit)) # bottom
     heatmap!(ax, y .+ cxyz[2], z .+ cxyz[3], frontF, transformation=(:yz,  a2 + cxyz[1]),
         colormap = cmap, transparency = transparent, colorrange = (lowLimit, highLimit)) # front
-    heatmap!(ax, x .+ cxyz[1], z .+ cxyz[3], rightF, transformation=(:xz,  a2 + .+ cxyz[2]),
+    heatmap!(ax, x .+ cxyz[1], z .+ cxyz[3], rightF, transformation=(:xz,  a2 + cxyz[2]),
         colormap = cmap, transparency = transparent, colorrange = (lowLimit, highLimit)) # right
     heatmap!(ax, x .+ cxyz[1], y .+ cxyz[2], topF, transformation = (:xy,  a2 + cxyz[3]),
         colormap = cmap, transparency = transparent, colorrange = (lowLimit, highLimit)) # top
