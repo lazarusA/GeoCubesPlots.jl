@@ -14,6 +14,7 @@ reversey  :: if the data is reverse in the y direction
 cmap     :: colormap
 
 rmvalue  :: remove an specific value
+
 utime    :: your time selection, format: Date("xxxx-xx-xx")
 
 Returns :

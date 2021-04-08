@@ -124,3 +124,88 @@ function plotcube(;a1 = 1, a2 = 1, timeLonLat = (40,50,20), cxyz = (0,0,0),
     fig[1, 2] = cbar
     fig
 end
+
+"""
+plotSlides(dataSlides; a1 = 1, a2 = 0, cxyz = (0,0,0), cmap = :Spectral_11, figsize = (840,800),
+        transparency = true, rmvalue = -9999, iswater = (true, :blue, -1, 0), cbar = false, leg = "legend")
+"""
+function plotSlides(dataSlides; a1 = 1, a2 = 0, cxyz = (0,0,0), cmap = :Spectral_11, figsize = (840,800),
+        transparency = true, rmvalue = -9999, iswater = (true, :blue, -1, 0), cbar = false, leg = "legend")
+    nxyz = size(dataSlides)
+    allSlides = replace(dataSlides, rmvalue => NaN)
+    highLimit = maximum(maximum.(x->isnan(x) ? -Inf : x, allSlides))
+    lowLimit =  minimum(minimum.(x->isnan(x) ?  Inf : x, allSlides))
+    clims = (lowLimit, highLimit)
+
+    y = LinRange(-a1, a1, nxyz[1])
+    z = LinRange(-a1, a1, nxyz[2])
+    fig = Figure(resolution = figsize)
+    #ax = Axis3(fig, aspect = (1,1,1))
+    ax = LScene(fig, scenekw = (camera = cam3d!, show_axis = true))
+    scatter!(ax, [Point3f0(0), Point3f0(1)], markersize = 0) # due to issue !
+    for (indx,i) in enumerate(LinRange(a1, -a1, nxyz[3]))
+        pltobj = heatmap!(ax, y .+ cxyz[2], z .+ cxyz[3], allSlides[:,:,indx],
+            limits =  Rect(Vec3f0(-1), Vec3f0(2)), # put them in terms of a1 and  cxyz
+            transformation=(:yz, -a2 - i + cxyz[1]), colormap = cmap, transparency = transparency,
+            colorrange = clims)
+        if iswater[1] == true
+            heatmap!(ax, y .+ cxyz[2], z .+ cxyz[3], dataSlides[:,:,indx],
+                transformation=(:yz, -a2 - i + cxyz[1]), colorrange = (iswater[3],iswater[4]),
+                lowclip = iswater[2], highclip = :transparent, transparency = transparency,)
+        end
+    end
+    #ax.limits[] = Rect(Vec3f0(-1), Vec3f0(2))
+    fig[1,1] = ax
+    if cbar == true
+        cbar = Colorbar(fig, limits = clims, nsteps = 100, colormap = cmap,
+        label = leg, width = 11, height = Relative(2/4), tickalign = 1)
+        fig[1,2] = cbar
+    end
+    fig
+end
+"""
+recordSlides(dataSlides; filename = "temp.mp4", framerate =24, a1 = 1, a2 = 0, cxyz = (0,0,0),
+        cmap = :Spectral_11, figsize = (900,900), transparency = true,
+        iswater = (true, :blue, -1, 0), cbar = false, leg = "legend", show_axis = false)
+"""
+
+function recordSlides(dataSlides; filename = "temp.mp4", framerate =24, a1 = 1, a2 = 0, cxyz = (0,0,0),
+        cmap = :Spectral_11, figsize = (900,900), transparency = true,
+        iswater = (true, :blue, -1, 0), cbar = false, leg = "legend", show_axis = false)
+
+    nxyz = size(dataSlides)
+    allSlides = replace(dataSlides, -9999 => NaN)
+    highLimit = maximum(maximum.(x->isnan(x) ? -Inf : x, allSlides))
+    lowLimit =  minimum(minimum.(x->isnan(x) ?  Inf : x, allSlides))
+    clims = (lowLimit, highLimit)
+
+    y = LinRange(-a1, a1, nxyz[1])
+    z = LinRange(-a1, a1, nxyz[2])
+    fig = Figure(resolution = figsize)
+    #ax = Axis3(fig, aspect = (1,1,1))
+    ax = LScene(fig, scenekw = (camera = cam3d!, show_axis = show_axis))
+    scatter!(ax, [Point3f0(0), Point3f0(1)], markersize = 0) # due to ticks issue !
+
+    if cbar == true
+        cbar = Colorbar(fig, limits = clims, nsteps = 100, colormap = cmap,
+        label = leg, width = 11, height = Relative(2/4), tickalign = 1)
+        fig[1,2] = cbar
+    end
+
+    record(fig, filename, framerate=framerate) do io
+        for (indx,i) in enumerate(LinRange(a1, -a1, nxyz[3]))
+            heatmap!(ax, y .+ cxyz[2], z .+ cxyz[3], allSlides[:,:,indx],
+                limits =  Rect(Vec3f0(-1), Vec3f0(2)), # put them in terms of a1 and  cxyz
+                transformation=(:yz, -a2 - i + cxyz[1]), colormap = cmap, transparency = transparency,
+                colorrange = clims)
+            if iswater[1] == true
+                heatmap!(ax, y .+ cxyz[2], z .+ cxyz[3], dataSlides[:,:,indx],
+                    transformation=(:yz, -a2 - i + cxyz[1]), colorrange = (iswater[3],iswater[4]),
+                    lowclip = iswater[2], highclip = :transparent, transparency = transparency,)
+            end
+            fig[1,1] = ax
+            recordframe!(io)
+        end
+        #ax.limits[] = Rect(Vec3f0(-1), Vec3f0(2))
+    end
+end
