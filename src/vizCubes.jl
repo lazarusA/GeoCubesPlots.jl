@@ -108,10 +108,18 @@ function plotcube(;a1 = 1, a2 = 1, timeLonLat = (40,50,20), cxyz = (0,0,0),
     cbar  = Colorbar(fig, cbox,  label = label,
         width = 11, height = Relative(2/4), tickalign = 1, ticklabelsize = 12, labelsize = 12,)
 
+    dlon = (lonrange[2] - lonrange[1])
+    dlat = (latrange[2] - latrange[1])
+    δdlon = round(dlon/4, digits = 2)
+    δdlat = round(dlat/4, digits = 2)
+
     yticks!(ax.scene; ytickrange = -1:0.5:1,
-        yticklabels=[" ", "$(lonrange[1])", "$((lonrange[1] + lonrange[2])/2)", "$(lonrange[2])", " "])
+            yticklabels=["$(lonrange[1] + 0.0)", "$(lonrange[1] + δdlon)",
+                "$(lonrange[1] + 2*δdlon) ", "$(lonrange[1] + 3*δdlon)", "$(lonrange[2] + 0.0)"])
     zticks!(ax.scene; ztickrange = -1:0.5:1,
-        zticklabels=[" ", "$(latrange[1])", "$((latrange[1] + latrange[2])/2)", "$(latrange[2])", " "])
+            zticklabels=["$(latrange[1] + 0.0)", "$(latrange[1] + δdlat)",
+                "$(latrange[1] + 2*δdlat) ", "$(latrange[1] + 3*δdlat)", "$(latrange[2] + 0.0)"])
+
     xticks!(ax.scene; xtickrange = -1:0.5:1, xticklabels= timeStamps)
 
 
@@ -126,11 +134,13 @@ function plotcube(;a1 = 1, a2 = 1, timeLonLat = (40,50,20), cxyz = (0,0,0),
 end
 
 """
-plotSlides(dataSlides; a1 = 1, a2 = 0, cxyz = (0,0,0), cmap = :Spectral_11, figsize = (840,800),
-        transparency = true, rmvalue = -9999, iswater = (true, :blue, -1, 0), cbar = false, leg = "legend")
+plotSlides(dataSlides, lonrange, latrange; a1 = 1, a2 = 0, cxyz = (0,0,0), cmap = :Spectral_11,
+        figsize = (840,800), transparency = true, rmvalue = -9999, iswater = (true, (:dodgerblue, 0.35), -1, 0),
+        cbar = false, leg = "legend", inidate = " ", findate = " ")
 """
-function plotSlides(dataSlides; a1 = 1, a2 = 0, cxyz = (0,0,0), cmap = :Spectral_11, figsize = (840,800),
-        transparency = true, rmvalue = -9999, iswater = (true, :blue, -1, 0), cbar = false, leg = "legend")
+function plotSlides(dataSlides, lonrange, latrange; a1 = 1, a2 = 0, cxyz = (0,0,0), cmap = :Spectral_11,
+        figsize = (840,800), transparency = true, rmvalue = -9999, iswater = (true, (:dodgerblue, 0.35), -1, 0),
+        cbar = false, leg = "legend", inidate = " ", findate = " ")
     nxyz = size(dataSlides)
     allSlides = replace(dataSlides, rmvalue => NaN)
     highLimit = maximum(maximum.(x->isnan(x) ? -Inf : x, allSlides))
@@ -140,12 +150,12 @@ function plotSlides(dataSlides; a1 = 1, a2 = 0, cxyz = (0,0,0), cmap = :Spectral
     y = LinRange(-a1, a1, nxyz[1])
     z = LinRange(-a1, a1, nxyz[2])
     fig = Figure(resolution = figsize)
-    #ax = Axis3(fig, aspect = (1,1,1))
+    #ax = Axis3(fig, aspect = :data, viewmode= viewmode,perspectiveness = 0.5, title = title)
     ax = LScene(fig, scenekw = (camera = cam3d!, show_axis = true))
-    scatter!(ax, [Point3f0(0), Point3f0(1)], markersize = 0) # due to issue !
+    scatter!(ax, [Point3f0(0), Point3f0(1)], markersize = 0, limits =  Rect(Vec3f0(-1.1), Vec3f0(2))) # due to ticks issue !
     for (indx,i) in enumerate(LinRange(a1, -a1, nxyz[3]))
         pltobj = heatmap!(ax, y .+ cxyz[2], z .+ cxyz[3], allSlides[:,:,indx],
-            limits =  Rect(Vec3f0(-1), Vec3f0(2)), # put them in terms of a1 and  cxyz
+            #limits =  Rect(Vec3f0(-1), Vec3f0(2)), # put them in terms of a1 and  cxyz
             transformation=(:yz, -a2 - i + cxyz[1]), colormap = cmap, transparency = transparency,
             colorrange = clims)
         if iswater[1] == true
@@ -154,8 +164,45 @@ function plotSlides(dataSlides; a1 = 1, a2 = 0, cxyz = (0,0,0), cmap = :Spectral
                 lowclip = iswater[2], highclip = :transparent, transparency = transparency,)
         end
     end
+    axis = ax.scene[OldAxis]
+    axis[:ticks][:textcolor] = (:transparent, :black, :black)
+    axis[:names][:axisnames] = ("", "lon", "lat")
+    axis[:names][:rotation] = (qrotation(Vec3(0,0,1), π),
+                              qrotation(Vec3(0,0,1), π/2),
+                              qrotation(Vec3(0,0,1), -π/2) * qrotation(Vec3(0,1,0), -π/2))
+    axis[:names][:align] = ((:center, :right), (:center, :right), (:center, :left))
+
+    dlon = (lonrange[2] - lonrange[1])
+    dlat = (latrange[2] - latrange[1])
+    δdlon = round(dlon/4, digits = 2)
+    δdlat = round(dlat/4, digits = 2)
+
+    yticks!(ax.scene; ytickrange = -1:0.5:1,
+        yticklabels=["$(lonrange[1] + 0.0)", "$(lonrange[1] + δdlon)",
+            "$(lonrange[1] + 2*δdlon) ", "$(lonrange[1] + 3*δdlon)", "$(lonrange[2] + 0.0)"])
+    zticks!(ax.scene; ztickrange = -1:0.5:1,
+        zticklabels=["$(latrange[1] + 0.0)", "$(latrange[1] + δdlat)",
+            "$(latrange[1] + 2*δdlat) ", "$(latrange[1] + 3*δdlat)", "$(latrange[2] + 0.0)"])
+
+
     #ax.limits[] = Rect(Vec3f0(-1), Vec3f0(2))
+    text!(inidate, position = Point3f0(-1, -1, 1.2),
+    color = :black,
+    #rotation = 2π +π/10,
+    align = (:center, :center),
+    textsize = 20,
+    #space = :data
+    )
+    text!(findate, position = Point3f0(1, -1, 1.2),
+    color = :red,
+    #rotation = 2π +π/10,
+    align = (:center, :center),
+    textsize = 20,
+    #space = :data
+    )
+
     fig[1,1] = ax
+    #fig[0,1] = Label(fig, title, textsize = 20, color = (:black, 0.85))
     if cbar == true
         cbar = Colorbar(fig, limits = clims, nsteps = 100, colormap = cmap,
         label = leg, width = 11, height = Relative(2/4), tickalign = 1)
@@ -163,16 +210,17 @@ function plotSlides(dataSlides; a1 = 1, a2 = 0, cxyz = (0,0,0), cmap = :Spectral
     end
     fig
 end
-"""
-recordSlides(dataSlides; filename = "temp.mp4", framerate =24, a1 = 1, a2 = 0, cxyz = (0,0,0),
-        cmap = :Spectral_11, figsize = (900,900), transparency = true,
-        iswater = (true, :blue, -1, 0), cbar = false, leg = "legend", show_axis = false)
-"""
 
-function recordSlides(dataSlides; filename = "temp.mp4", framerate =24, a1 = 1, a2 = 0, cxyz = (0,0,0),
-        cmap = :Spectral_11, figsize = (900,900), transparency = true,
-        iswater = (true, :blue, -1, 0), cbar = false, leg = "legend", show_axis = false)
-
+"""
+recordSlides(dataSlides, tstamps, lonrange, latrange; filename = "temp.mp4", framerate = 24,
+        a1 = 1, a2 = 0, cxyz = (0,0,0), cmap = :Spectral_11, figsize = (900,900), transparency = true,
+        iswater = (true, (:dodgerblue, 0.35), -1, 0), cbar = false, leg = "legend")
+"""
+function recordSlides(dataSlides, tstamps, lonrange, latrange; filename = "temp.mp4", framerate = 24,
+        a1 = 1, a2 = 0, cxyz = (0,0,0), cmap = :Spectral_11, figsize = (900,900), transparency = true,
+        iswater = (true, (:dodgerblue, 0.35), -1, 0), cbar = false, leg = "legend")
+    inidate = "$(Date(tstamps[1]))"
+    #findate = Node(" ")
     nxyz = size(dataSlides)
     allSlides = replace(dataSlides, -9999 => NaN)
     highLimit = maximum(maximum.(x->isnan(x) ? -Inf : x, allSlides))
@@ -182,20 +230,48 @@ function recordSlides(dataSlides; filename = "temp.mp4", framerate =24, a1 = 1, 
     y = LinRange(-a1, a1, nxyz[1])
     z = LinRange(-a1, a1, nxyz[2])
     fig = Figure(resolution = figsize)
-    #ax = Axis3(fig, aspect = (1,1,1))
-    ax = LScene(fig, scenekw = (camera = cam3d!, show_axis = show_axis))
-    scatter!(ax, [Point3f0(0), Point3f0(1)], markersize = 0) # due to ticks issue !
+    #ax = Axis3(fig, aspect = :data, title = "hola")
+    ax = LScene(fig, scenekw = (camera = cam3d!, show_axis = true))
+    scatter!(ax, [Point3f0(0), Point3f0(1)], markersize = 0, limits =  Rect(Vec3f0(-1.1), Vec3f0(2))) # due to ticks issue !
+    axis = ax.scene[OldAxis]
+    axis[:ticks][:textcolor] = (:transparent, :black, :black)
+    axis[:names][:axisnames] = ("", "lon", "lat")
+    axis[:names][:rotation] = (qrotation(Vec3(0,0,1), π),
+                              qrotation(Vec3(0,0,1), π/2),
+                              qrotation(Vec3(0,0,1), -π/2) * qrotation(Vec3(0,1,0), -π/2))
+    axis[:names][:align] = ((:center, :right), (:center, :right), (:center, :left))
+
+    dlon = (lonrange[2] - lonrange[1])
+    dlat = (latrange[2] - latrange[1])
+    δdlon = round(dlon/4, digits = 2)
+    δdlat = round(dlat/4, digits = 2)
+
+    yticks!(ax.scene; ytickrange = -1:0.5:1,
+        yticklabels=["$(lonrange[1] + 0.0)", "$(lonrange[1] + δdlon)",
+            "$(lonrange[1] + 2*δdlon) ", "$(lonrange[1] + 3*δdlon)", "$(lonrange[2] + 0.0)"])
+    zticks!(ax.scene; ztickrange = -1:0.5:1,
+        zticklabels=["$(latrange[1] + 0.0)", "$(latrange[1] + δdlat)",
+            "$(latrange[1] + 2*δdlat) ", "$(latrange[1] + 3*δdlat)", "$(latrange[2] + 0.0)"])
+
 
     if cbar == true
         cbar = Colorbar(fig, limits = clims, nsteps = 100, colormap = cmap,
         label = leg, width = 11, height = Relative(2/4), tickalign = 1)
         fig[1,2] = cbar
     end
-
+    text!(inidate, position = Point3f0(-1, -1, 1.2),
+    color = :black,
+    #rotation = 2π +π/10,
+    align = (:center, :center),
+    textsize = 20,
+    #space = :data
+    )
+    #Label(fig[1, 1, Bottom()], findate, color = :red, padding = (5, 0, 0, 0))
+    #Label(fig[1, 1, Right()], inidate, rotation = pi/2, padding = (0, 0, 0, 0))
     record(fig, filename, framerate=framerate) do io
         for (indx,i) in enumerate(LinRange(a1, -a1, nxyz[3]))
             heatmap!(ax, y .+ cxyz[2], z .+ cxyz[3], allSlides[:,:,indx],
-                limits =  Rect(Vec3f0(-1), Vec3f0(2)), # put them in terms of a1 and  cxyz
+                #limits =  Rect(Vec3f0(-1), Vec3f0(2)), # put them in terms of a1 and  cxyz
                 transformation=(:yz, -a2 - i + cxyz[1]), colormap = cmap, transparency = transparency,
                 colorrange = clims)
             if iswater[1] == true
@@ -203,8 +279,21 @@ function recordSlides(dataSlides; filename = "temp.mp4", framerate =24, a1 = 1, 
                     transformation=(:yz, -a2 - i + cxyz[1]), colorrange = (iswater[3],iswater[4]),
                     lowclip = iswater[2], highclip = :transparent, transparency = transparency,)
             end
+
+            txtobj = text!("$(Date(tstamps[indx]))", position = Point3f0(1, -1, 1.2), # Point3f0(-a2 - i, -1, 1.2),
+                color = :red,
+                #rotation = 2π +π/10,
+                align = (:center, :center),
+                textsize = 20,
+                #space = :data
+                )
             fig[1,1] = ax
+            #findate[] = "$(Date(tstamps[indx]))"
+            #fig[0,1] = Label(fig, "$(Date(tstamps[indx]))", textsize = 20, color = (:white, 0.85))
             recordframe!(io)
+            if indx < nxyz[3]
+                delete!(ax, txtobj) # horrible hack !
+            end
         end
         #ax.limits[] = Rect(Vec3f0(-1), Vec3f0(2))
     end
