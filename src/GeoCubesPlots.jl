@@ -6,6 +6,6 @@ include("vizLonLat.jl")
 include("getSlides.jl")
 
 
-export cube!, plot, plotcube
+export cube!, plotmap, plotcube, getTimeSlides, getCubeFaces, plotSlides, recordSlides
 
 end # module

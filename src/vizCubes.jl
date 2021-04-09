@@ -57,7 +57,7 @@ end
 
 """
 plotcube(; args...)
-______
+
 a1       ::  size of each side
 
 a2       :: position of each side
