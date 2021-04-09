@@ -1,5 +1,5 @@
 """
-plot(dataset; args...)
+plotmap(dataset; args...)
 
 dataset is a Cube from YAXArrays
 
@@ -22,7 +22,7 @@ Returns :
 fig, ax, pltobj = plot(...)
 
 """
-function plot(dataset::YAXArray; x = :lon, y = :lat, variable = nothing, legcbar=" ",
+function plotmap(dataset::YAXArray; x = :lon, y = :lat, variable = nothing, legcbar=" ",
     cmap = :plasma, figsize = (1240,650), utime = nothing, rmvalue =nothing, reversey = true)
 
     #steplonticks = nothing, steplatticks = nothing

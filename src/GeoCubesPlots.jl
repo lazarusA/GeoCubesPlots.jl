@@ -3,6 +3,8 @@ using GLMakie, GeometryBasics, YAXArrays
 
 include("vizCubes.jl")
 include("vizLonLat.jl")
+include("getSlides.jl")
+
 
 export cube!, plot, plotcube
 
