@@ -1,18 +1,16 @@
 """
-getTimeSlides(datCubes::YAXArray, lon = lonRange, lat = latRange,
-    time = timeRange; variable = nothing, reversey = true)
+getTimeSlides(datCubes::YAXArray, lon, lat, timeRange; variable = nothing, reversey = true)
 
-time :: (Date("xxxx-xx-xx"),) or (Date("xxxx-xx-xx"), Date("xxxx-xx-xx"))
+timeRange :: (Date("xxxx-xx-xx"),) or (Date("xxxx-xx-xx"), Date("xxxx-xx-xx"))
 """
-function getTimeSlides(datCubes::YAXArray, lon = lonRange, lat = latRange,
-    time = timeRange; variable = nothing, reversey = true)
+function getTimeSlides(datCubes::YAXArray, lon, lat, timeRange; variable = nothing, reversey = true)
     if length(time) == 1
         time = (time[1], time[1])
     end
     if variable != nothing
-        timeSlides = datCubes[var = variable, lon = lonRange, lat=latRange, time = time].data
+        timeSlides = datCubes[var = variable, lon = lon, lat=lat, time = time].data
     else
-        timeSlides = datCubes[lon = lonRange, lat=latRange, time = time].data
+        timeSlides = datCubes[lon = lon, lat=lat, time = time].data
     end
     if reversey == true
         return replace(timeSlides[:,end:-1:1,:], missing => NaN)
