@@ -19,6 +19,19 @@ function getTimeSlides(datCubes::YAXArray, lon, lat, timeRange; variable = nothi
     end
 end
 
+function getTimeSlides(datCubes::YAXArray, lon, lat; variable = nothing, reversey = true)
+    if variable != nothing
+        timeSlides = datCubes[var = variable, lon = lon, lat=lat].data
+    else
+        timeSlides = datCubes[lon = lon, lat=lat].data
+    end
+    if reversey == true
+        return replace(timeSlides[:,end:-1:1,:], missing => NaN)
+    else
+        return replace(timeSlides[:,:,:], missing => NaN)
+    end
+end
+
 
 """
 getCubeFaces(datCubes::YAXArray, timeRange, lonRange, latRange;
